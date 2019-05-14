@@ -2,7 +2,7 @@
 """
     小说
 """
-import requests,json,os,logging,threading,sys
+import requests,json,os,logging,threading,sys,getopt
 from bs4 import BeautifulSoup as bs
 from time import localtime,strftime,time
 from queue import PriorityQueue
@@ -10,7 +10,13 @@ from queue import PriorityQueue
 
 # 定义父类
 class fiction(object):
+    """
+        获得小说
+    """
     def __init__(self, name=''):
+        """
+            初始化类
+        """
         self.save_dir = 'fiction'
         self.fiction = {
             'name':name if name else '',
@@ -57,6 +63,10 @@ class fiction(object):
         self.get_chapter_all()
         self.save()
         print('do_fiction %s over' % self.fiction['name'])
+    def update_all(self):
+        """批量更新所有文件"""
+        update_list = self.find_local()
+        pass
     def load(self, name):
         """ 读取文件信息 """
         info = False
@@ -72,15 +82,19 @@ class fiction(object):
             if self.load(name):
                 self.fiction = self.load(name)
                 print(self.fiction)
+                return self.fiction
         else:
             file_list = [i[:-4] for i in os.listdir(self.save_dir)]
+            info_list = []
             for name in file_list:
                 try:
                     info = self.load(name)
                     print(file_list.index(name), info['name'], info['author'], info['num'], info['last_chapter'], sep='\t')
                     print('\t', info['desc'])
+                    info_list.append(info)
                 except Exception as Err:
                     logging.info(name, Err)
+            return info_list
     def get_source(self, name=''):
         """ 找到主页 """
         pass
@@ -113,8 +127,7 @@ class fiction(object):
 
 class bqg(fiction):
     def get_source(self, name=''):
-        if name:
-            self.__init__(name)
+        if name:self.__init__(name)
         url = 'https://www.xbiquge6.com/search.php?keyword=%s' % self.fiction['name']
         soup = self.get_url(url)
         if not soup:return False
@@ -166,13 +179,27 @@ class x23(fiction):
         pass
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        name = input('请输入小说名称:')
-        t = bqg(name)
-        t.do_fiction()
-    else:
-        flist = sys.argv[1:]
-        for name in flist:
-            print(name)
-            t = bqg(name)
-            t.do_fiction()
+    opts, args = getopt.getopt(sys.argv[1:], 'hu:g:',['help','update','get'])
+    print(opts,args)
+    if not opts:exit('warning: please input opts')
+    t = bqg()
+    for op, value in opts:
+        print(op, value)
+        if op in ('-h','--help'):
+            print(fiction.__doc__)
+        elif op in ('-u', '--update'):
+            print('update',args)
+        elif op in ('-g', '--get'):
+            print('get')
+        else:
+            print('warning: unkown opts, please check')
+    # if len(sys.argv) == 1:
+    #     name = input('请输入小说名称:')
+    #     t = bqg(name)
+    #     t.do_fiction()
+    # else:
+    #     flist = sys.argv[1:]
+    #     for name in flist:
+    #         print(name)
+    #         t = bqg(name)
+    #         t.do_fiction()
