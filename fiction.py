@@ -65,7 +65,10 @@ class fiction(object):
         print('do_fiction %s over' % self.fiction['name'])
     def update_all(self):
         """批量更新所有文件"""
-        update_list = self.find_local()
+        # 读取本地文件，获得所有需要更新的文件信息
+        update_list = self.find_local() 
+        for i in update_list:
+            self.do_fiction(i['name'])
         pass
     def load(self, name):
         """ 读取文件信息 """
@@ -119,7 +122,7 @@ class fiction(object):
         self.fiction['update'] = str(int(time()))
         logging.info('get_chapter_all %s complete, get %d chapters' % (self.fiction['name'], len(self.catalog)))
     def check_catalog(self):
-        """ 将抓取到的目录与本地文件的最后一章对比，返回需要抓取的目录 """
+        """ 将get_catalog()抓取到的目录与本地文件的最后一章对比，返回需要抓取的章节目录 """
         chapter_name_list = [i['name'] for i in self.catalog]
         local_info = self.load(self.fiction['name'])
         ind = chapter_name_list.index(local_info['last_chapter'])+1 if local_info else 0
@@ -179,27 +182,27 @@ class x23(fiction):
         pass
 
 if __name__ == '__main__':
-    opts, args = getopt.getopt(sys.argv[1:], 'hu:g:',['help','update','get'])
-    print(opts,args)
-    if not opts:exit('warning: please input opts')
-    t = bqg()
-    for op, value in opts:
-        print(op, value)
-        if op in ('-h','--help'):
-            print(fiction.__doc__)
-        elif op in ('-u', '--update'):
-            print('update',args)
-        elif op in ('-g', '--get'):
-            print('get')
-        else:
-            print('warning: unkown opts, please check')
-    # if len(sys.argv) == 1:
-    #     name = input('请输入小说名称:')
-    #     t = bqg(name)
-    #     t.do_fiction()
-    # else:
-    #     flist = sys.argv[1:]
-    #     for name in flist:
-    #         print(name)
-    #         t = bqg(name)
-    #         t.do_fiction()
+    # opts, args = getopt.getopt(sys.argv[1:], 'hu:g:',['help','update','get'])
+    # print(opts,args)
+    # if not opts:exit('warning: please input opts')
+    # t = bqg()
+    # for op, value in opts:
+    #     print(op, value)
+    #     if op in ('-h','--help'):
+    #         print(fiction.__doc__)
+    #     elif op in ('-u', '--update'):
+    #         print('update',args)
+    #     elif op in ('-g', '--get'):
+    #         print('get')
+    #     else:
+    #         print('warning: unkown opts, please check')
+    if len(sys.argv) == 1:
+        name = input('请输入小说名称:')
+        t = bqg(name)
+        t.do_fiction()
+    else:
+        flist = sys.argv[1:]
+        for name in flist:
+            print(name)
+            t = bqg(name)
+            t.do_fiction()
