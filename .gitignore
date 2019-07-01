@@ -102,5 +102,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-/fiction
-/isend
+/ended
+/updating
